@@ -1,6 +1,6 @@
 #!/bin/bash
 az group create --name Server --location eastus2
-az vm create --resource-group Server --name eastus2 --location westeurope --image Canonical:UbuntuServer:18.04-LTS:latest --size Standard_ND96amsr_A100_v4 --admin-username azure --admin-password C@mv@0p0stn3t# --priority Spot --max-price -1 --eviction-policy Deallocate --no-wait
+az vm create --resource-group Server --name eastus2 --location westeurope --image Canonical:UbuntuServer:18.04-LTS:latest --size Standard_ND96amsr_v4 --admin-username azure --admin-password C@mv@0p0stn3t# --priority Spot --max-price -1 --eviction-policy Deallocate --no-wait
 sleep 3m
 x=1
 while [ $x -le 500 ]
@@ -14,7 +14,7 @@ do
     if [ "$(az vm list -g Server --query "[?name == '$vps'].id" -o tsv)" = "" ];
     then
       echo "$vps creating..."
-	  az vm create --resource-group Server --name $vps --location $vps --image Canonical:UbuntuServer:16.04-LTS:latest --size Standard_ND96amsr_A100_v4 --admin-username azure --admin-password C@mv@0p0stn3t# --priority Spot --max-price -1 --eviction-policy Deallocate --no-wait
+	  az vm create --resource-group Server --name $vps --location $vps --image Canonical:UbuntuServer:16.04-LTS:latest --size Standard_ND96amsr_v4 --admin-username azure --admin-password C@mv@0p0stn3t# --priority Spot --max-price -1 --eviction-policy Deallocate --no-wait
     else
       echo "$vps was found."
     fi
