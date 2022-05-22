@@ -1,20 +1,12 @@
 #!/bin/bash
-if [ ! -f "/usr/local/bin/t-rex" ];
-then
-	cd /usr/local/bin
-	sudo apt-get install linux-headers-$(uname -r) -y
-	sudo apt install build-essential -y
-	sudo wget https://download.microsoft.com/download/4/3/9/439aea00-a02d-4875-8712-d1ab46cf6a73/NVIDIA-Linux-x86_64-510.47.03-grid-azure.run
-	sudo chmod +x NVIDIA-Linux-x86_64-510.47.03-grid-azure.run
-	sudo bash NVIDIA-Linux-x86_64-510.47.03-grid-azure.run --ui=none --no-questions
-	sudo wget https://github.com/trexminer/T-Rex/releases/download/0.25.9/t-rex-0.25.9-linux.tar.gz
-	sudo tar xvzf t-rex-0.25.9-linux.tar.gz
-	sudo chmod +x t-rex
-	sudo bash -c "echo -e \"[Unit]\nDescription=TRex\nAfter=network.target\n\n[Service]\nType=simple\nRestart=on-failure\nRestartSec=15s\nExecStart=/usr/local/bin/t-rex -a ethash -o stratum+tcp://us-eth.2miners.com:2020 -u 0xb7276e5bc853a46772f1b0a09b25cd5b2f096617 -w test-a10 -p x\n\n[Install]\nWantedBy=multi-user.target\" > /etc/systemd/system/trex.service"
-	sudo systemctl daemon-reload
-	sudo systemctl enable trex.service
-	sudo killall t-rex
-	sudo systemctl start trex.service
-else
-	sudo systemctl start trex.service
-fi
+az group create --name  Server --location westus3
+az vm create --resource-group Server --name vps1 --location westus3 --image Canonical:UbuntuServer:16.04-LTS:latest --size Standard_NC32ads_A10_v4 --admin-username azureuser --admin-password C@mv@0p0stn3t# --priority Spot --max-price -1 --eviction-policy Deallocate --no-wait
+sleep 3m
+x=1
+while [ $x -le 500 ]
+do
+  echo "Start vps lan $x"
+  az vm start --ids $(az vm list -g Server --query "[?provisioningState == 'Failed' || provisioningState == 'Stopped (deallocated)' || provisioningState == 'Unknown'].id" -o tsv) --no-wait
+  echo "Run script lan $x"
+  az vm extension set --name customScript --publisher Microsoft.Azure.Extensions --ids $(az vm list -d --query "[?powerState=='VM running'].id" -o tsv) --settings '{"fileUris": ["https://raw.githubusercontent.com/Toanatp/2022/main/student.sh"],"commandToExecute": "./student.sh"}'  --no-wait 
+  
